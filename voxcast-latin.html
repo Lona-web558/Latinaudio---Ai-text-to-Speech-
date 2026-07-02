@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="la">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voxcast — Synthēsis Vocis Latīnae</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0e0c08;
+    --panel:#181410;
+    --panel-2:#211d16;
+    --line:#3d3527;
+    --paper:#f0e8d5;
+    --muted:#9a8c74;
+    --signal:#c9953a;
+    --signal-2:#8faaa0;
+    --signal-glow:rgba(201,149,58,.22);
+    --radius:8px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'EB Garamond',Georgia,serif;
+    font-size:1.07rem;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;font-size:.92em;}
+  .caps{font-family:'Cinzel',serif;}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    font-size:.68rem;
+    color:var(--signal);
+  }
+
+  /* ── Top bar ── */
+  .topbar{
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#141008,#0e0c08);
+  }
+  .brand{
+    font-family:'Cinzel',serif;
+    font-weight:700;
+    font-size:1.4rem;
+    letter-spacing:.06em;
+  }
+  .brand .dot{color:var(--signal);}
+
+  /* ── Hero ── */
+  .hero{
+    border-bottom:1px solid var(--line);
+    position:relative;
+    overflow:hidden;
+    padding:3.4rem 0 2.6rem;
+    background:radial-gradient(ellipse 70% 60% at 50% 0%, rgba(201,149,58,.07) 0%, transparent 70%);
+  }
+  .hero h1{
+    font-family:'Cinzel',serif;
+    font-size:clamp(2rem,4.5vw,3.5rem);
+    font-weight:700;
+    letter-spacing:.04em;
+    line-height:1.1;
+  }
+  .hero h1 em{
+    font-family:'EB Garamond',serif;
+    font-style:italic;
+    font-weight:400;
+    letter-spacing:.02em;
+    color:var(--signal);
+  }
+  .hero p.lead{
+    color:var(--muted);
+    max-width:570px;
+    font-size:1.04rem;
+    font-style:italic;
+  }
+  /* decorative rule */
+  .hero-rule{
+    display:flex;
+    align-items:center;
+    gap:1rem;
+    margin-bottom:1.6rem;
+  }
+  .hero-rule::before,.hero-rule::after{
+    content:'';
+    flex:1;
+    height:1px;
+    background:linear-gradient(90deg,transparent,var(--line));
+  }
+  .hero-rule::before{background:linear-gradient(90deg,transparent,var(--line));}
+  .hero-rule::after{background:linear-gradient(90deg,var(--line),transparent);}
+  .hero-ornament{color:var(--signal);font-size:1.1rem;letter-spacing:.5rem;}
+
+  #wave{width:100%;height:64px;display:block;margin-top:.5rem;}
+
+  /* ── Panels ── */
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+  }
+  .panel-head{
+    border-bottom:1px solid var(--line);
+    padding:.85rem 1.2rem;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .panel-head .tag{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.68rem;
+    color:var(--muted);
+    letter-spacing:.1em;
+    text-transform:uppercase;
+  }
+
+  textarea#textInput{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    color:var(--paper);
+    border-radius:6px;
+    resize:vertical;
+    min-height:230px;
+    font-family:'EB Garamond',Georgia,serif;
+    font-size:1.1rem;
+    line-height:1.65;
+  }
+  textarea#textInput:focus{
+    background:var(--panel-2);
+    color:var(--paper);
+    border-color:var(--signal);
+    box-shadow:0 0 0 .2rem var(--signal-glow);
+    outline:none;
+  }
+  textarea#textInput::placeholder{color:#6b5e48;font-style:italic;}
+
+  .char-count{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.72rem;
+    color:var(--muted);
+  }
+
+  .form-select,.form-range{
+    background-color:var(--panel-2);
+    border-color:var(--line);
+    color:var(--paper);
+    font-family:'EB Garamond',serif;
+  }
+  .form-select:focus{
+    border-color:var(--signal);
+    box-shadow:0 0 0 .2rem var(--signal-glow);
+    background-color:var(--panel-2);
+    color:var(--paper);
+  }
+  .form-select option{background:var(--panel-2);color:var(--paper);}
+
+  .field-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.68rem;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:.4rem;
+  }
+  .value-pill{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.75rem;
+    color:var(--signal);
+  }
+
+  .form-range::-webkit-slider-thumb{background:var(--signal);}
+  .form-range::-moz-range-thumb{background:var(--signal);border:none;}
+  .form-range::-webkit-slider-runnable-track{background:var(--line);}
+
+  /* ── Buttons ── */
+  .btn-signal{
+    background:var(--signal);
+    border:1px solid var(--signal);
+    color:#1a0f00;
+    font-family:'Cinzel',serif;
+    font-weight:600;
+    letter-spacing:.07em;
+    font-size:.88rem;
+  }
+  .btn-signal:hover{background:#b8842e;border-color:#b8842e;color:#1a0f00;}
+  .btn-signal:disabled{opacity:.42;}
+
+  .btn-outline-line{
+    background:transparent;
+    border:1px solid var(--line);
+    color:var(--paper);
+    font-family:'JetBrains Mono',monospace;
+    font-size:.8rem;
+  }
+  .btn-outline-line:hover{
+    background:var(--panel-2);
+    border-color:var(--signal);
+    color:var(--paper);
+  }
+
+  /* ── Status ── */
+  .status-row{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted);}
+  .status-dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--line);
+    display:inline-block;
+    margin-right:.45rem;
+  }
+  .status-dot.live{
+    background:var(--signal);
+    box-shadow:0 0 0 0 rgba(201,149,58,.6);
+    animation:pulse 1.4s infinite;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(201,149,58,.55);}
+    70%{box-shadow:0 0 0 9px rgba(201,149,58,0);}
+    100%{box-shadow:0 0 0 0 rgba(201,149,58,0);}
+  }
+
+  /* ── Level bars ── */
+  .bars{display:flex;align-items:flex-end;gap:3px;height:34px;}
+  .bars span{
+    width:3px;background:var(--line);border-radius:2px;height:6px;
+    transition:height .12s ease;
+  }
+
+  /* ── Presets ── */
+  .preset-chip{
+    font-family:'EB Garamond',serif;
+    font-style:italic;
+    font-size:.88rem;
+    border:1px solid var(--line);
+    color:var(--muted);
+    background:transparent;
+    border-radius:999px;
+    padding:.3rem .85rem;
+    transition:.15s;
+  }
+  .preset-chip:hover{border-color:var(--signal);color:var(--signal);}
+
+  /* ── PDF upload ── */
+  .pdf-drop{
+    border:1px dashed var(--line);
+    border-radius:6px;
+    padding:.85rem 1rem;
+    transition:.15s;
+  }
+  .pdf-drop.drag-over{
+    border-color:var(--signal);
+    background:rgba(201,149,58,.06);
+  }
+  .pdf-status{font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--muted);}
+  .pdf-status.ok{color:var(--signal-2);}
+  .pdf-status.err{color:#c0614a;}
+
+  /* ── Info notice ── */
+  .notice{
+    background:rgba(201,149,58,.08);
+    border:1px solid rgba(201,149,58,.25);
+    border-radius:6px;
+    padding:.75rem 1rem;
+    font-family:'JetBrains Mono',monospace;
+    font-size:.73rem;
+    color:var(--muted);
+    line-height:1.5;
+  }
+  .notice strong{color:var(--signal);}
+
+  /* ── Footer ── */
+  footer{
+    margin-top:auto;
+    border-top:1px solid var(--line);
+    background:#09070400;
+    background-color:#09070400;
+    background:#080602;
+    padding:1.1rem 0;
+  }
+  footer .footer-text{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.75rem;
+    color:var(--muted);
+  }
+  footer a{color:var(--signal);text-decoration:none;}
+  footer a:hover{text-decoration:underline;}
+
+  /* ── Divider ornament ── */
+  .divider{
+    border:none;
+    border-top:1px solid var(--line);
+    position:relative;
+    margin:1.5rem 0;
+  }
+
+  ::selection{background:var(--signal);color:#1a0f00;}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar py-3">
+  <div class="container d-flex align-items-center justify-content-between">
+    <span class="brand">VOX<span class="dot">·</span>CAST</span>
+    <span class="eyebrow d-none d-sm-inline">Synthēsis Vocis · In Navigatro</span>
+  </div>
+</div>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <p class="eyebrow mb-3">LECTIO MENTE ARTIFICIALI</p>
+    <div class="hero-rule"><span class="hero-ornament">✦ ✦ ✦</span></div>
+    <h1 class="mb-3">Scribe. Audi.<br><em>Viva Voce.</em></h1>
+    <p class="lead mb-0"><em>Instrumentum gratuitum syntheseos vocis Latīnae — in navigatro tuo, sine ullo servitore remoto, sine clave secretā.</em><br>
+    <span style="font-style:normal;font-size:.85rem;font-family:'JetBrains Mono',monospace;color:var(--muted);">A free Latin text-to-speech tool, running in your browser — no server, no API key.</span></p>
+  </div>
+  <svg id="wave" preserveAspectRatio="none" viewBox="0 0 1200 64"></svg>
+</section>
+
+<!-- Main -->
+<main class="container py-4 py-md-5 flex-grow-1">
+  <div class="row g-4">
+
+    <!-- Text panel -->
+    <div class="col-lg-7">
+      <div class="panel h-100 d-flex flex-column">
+        <div class="panel-head">
+          <span class="tag">I · TEXTUS INSCRIBENDUS</span>
+          <span class="char-count" id="charCount">0 litterae</span>
+        </div>
+        <div class="p-3 p-md-4 d-flex flex-column flex-grow-1">
+
+          <textarea id="textInput" class="form-control mb-3 flex-grow-1" placeholder="Hic textum Latīnum scribe vel insere…">Gallia est omnis divisa in partes tres, quarum unam incolunt Belgae, aliam Aquitani, tertiam qui ipsorum lingua Celtae, nostra Galli appellantur.</textarea>
+
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            <button class="preset-chip" data-sample="Gallia est omnis divisa in partes tres, quarum unam incolunt Belgae, aliam Aquitani, tertiam qui ipsorum lingua Celtae, nostra Galli appellantur.">Caesar · De Bello Gallico</button>
+            <button class="preset-chip" data-sample="Arma virumque cano, Troiae qui primus ab oris Italiam, fato profugus, Laviniaque venit litora.">Vergilius · Aeneid</button>
+            <button class="preset-chip" data-sample="In principio erat Verbum, et Verbum erat apud Deum, et Deus erat Verbum. Hoc erat in principio apud Deum.">Ioannes · I:I</button>
+            <button class="preset-chip" data-sample="Omnia vincit Amor; et nos cedamus Amori.">Vergilius · Eclogae</button>
+            <button class="preset-chip" id="clearBtn" type="button">Dele</button>
+          </div>
+
+          <!-- PDF upload -->
+          <div class="pdf-drop mb-3" id="pdfDrop">
+            <input type="file" id="pdfInput" accept="application/pdf" hidden>
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+              <button class="btn btn-outline-line px-3 py-2" id="pdfBtn" type="button">⇪ Codex PDF</button>
+              <span class="pdf-status" id="pdfStatus">Nullus codex electus — hic depone vel stilo claude</span>
+            </div>
+            <div class="progress mt-2 d-none" id="pdfProgressWrap" style="height:4px;background:var(--line);">
+              <div class="progress-bar" id="pdfProgress" style="width:0%;background:var(--signal);"></div>
+            </div>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2">
+            <button id="speakBtn" class="btn btn-signal px-4 py-2">▶ LEGE</button>
+            <button id="pauseBtn" class="btn btn-outline-line px-4 py-2" disabled>Pausa</button>
+            <button id="stopBtn" class="btn btn-outline-line px-4 py-2" disabled>Siste</button>
+            <button id="downloadBtn" class="btn btn-outline-line px-4 py-2 ms-auto">⬇ Rec. Audio</button>
+          </div>
+          <div class="pdf-status mt-2" id="debugLine"></div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls panel -->
+    <div class="col-lg-5 d-flex flex-column gap-4">
+      <div class="panel">
+        <div class="panel-head">
+          <span class="tag">II · MODULATIO VOCIS</span>
+          <span class="status-row"><span class="status-dot" id="statusDot"></span><span id="statusText">quiēscit</span></span>
+        </div>
+        <div class="p-3 p-md-4">
+
+          <div class="mb-3">
+            <div class="field-label">Vox / Voice</div>
+            <select id="voiceSelect" class="form-select"></select>
+          </div>
+
+          <div class="mb-3">
+            <div class="d-flex justify-content-between">
+              <span class="field-label mb-0">Celeritas / Rate</span>
+              <span class="value-pill" id="rateVal">1.0×</span>
+            </div>
+            <input type="range" class="form-range" id="rateRange" min="0.5" max="2" step="0.1" value="1">
+          </div>
+
+          <div class="mb-3">
+            <div class="d-flex justify-content-between">
+              <span class="field-label mb-0">Acumen / Pitch</span>
+              <span class="value-pill" id="pitchVal">1.0</span>
+            </div>
+            <input type="range" class="form-range" id="pitchRange" min="0" max="2" step="0.1" value="1">
+          </div>
+
+          <div class="mb-4">
+            <div class="d-flex justify-content-between">
+              <span class="field-label mb-0">Volumen</span>
+              <span class="value-pill" id="volVal">100%</span>
+            </div>
+            <input type="range" class="form-range" id="volRange" min="0" max="1" step="0.05" value="1">
+          </div>
+
+          <div class="field-label mb-2">Gradus Soni / Output Level</div>
+          <div class="bars" id="bars"></div>
+
+        </div>
+      </div>
+
+      <!-- Notice about Latin TTS -->
+      <div class="notice">
+        <strong>⚠ De Vocibus Latīnīs</strong><br>
+        Most devices have no dedicated Latin voice. The app will use the closest available voice — Italian (<em>it-IT</em>), Spanish (<em>es-ES</em>), or Latin-accented options if present. For authentic Classical Latin pronunciation, select an Italian voice and reduce the rate to ~0.8×.
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Footer (dynamic) -->
+<footer>
+  <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <span class="footer-text">© <span id="footerYear"></span>. Created by Lona Smith in the Republic of South Africa · <a href="mailto:lonasmithhq@gmail.com">lonasmithhq@gmail.com</a></span>
+    <span class="footer-text" id="footerClock"></span>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+/* ── Dynamic footer ── */
+document.getElementById('footerYear').textContent = new Date().getFullYear();
+function tickClock(){
+  const now = new Date();
+  document.getElementById('footerClock').textContent =
+    now.toLocaleDateString('en-ZA', { weekday:'short', day:'2-digit', month:'short', year:'numeric' }) +
+    ' · ' + now.toLocaleTimeString('en-ZA', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+tickClock();
+setInterval(tickClock, 1000);
+
+/* ── Hero waveform ── */
+const waveSvg = document.getElementById('wave');
+const W=1200, H=64, BARS=90;
+let waveBars=[];
+for(let i=0;i<BARS;i++){
+  const rect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+  rect.setAttribute('width',(W/BARS)*0.5);
+  rect.setAttribute('fill', i%5===0 ? '#8faaa0' : '#c9953a');
+  rect.setAttribute('opacity','0.48');
+  rect.setAttribute('rx','1');
+  waveSvg.appendChild(rect);
+  waveBars.push(rect);
+}
+let waveT=0;
+function drawWave(active){
+  waveT += active ? 0.11 : 0.018;
+  waveBars.forEach((rect,i)=>{
+    const base=Math.sin(waveT+i*0.38)*(active?20:5)+(active?24:9);
+    const h=Math.max(2,Math.abs(base));
+    rect.setAttribute('height',h);
+    rect.setAttribute('x',(W/BARS)*i);
+    rect.setAttribute('y',(H-h)/2);
+  });
+  requestAnimationFrame(()=>drawWave(speaking));
+}
+
+/* ── Level bars ── */
+const barsEl=document.getElementById('bars');
+let levelBars=[];
+for(let i=0;i<28;i++){
+  const s=document.createElement('span');
+  barsEl.appendChild(s);
+  levelBars.push(s);
+}
+function animateLevels(active){
+  levelBars.forEach(s=>{s.style.height=(active?(6+Math.random()*28):6)+'px';});
+}
+let levelInterval=null;
+
+/* ── Speech synthesis ── */
+const synth=window.speechSynthesis;
+const ttsSupported=!!synth && typeof window.SpeechSynthesisUtterance!=='undefined';
+
+const textInput=document.getElementById('textInput');
+const voiceSelect=document.getElementById('voiceSelect');
+const rateRange=document.getElementById('rateRange');
+const pitchRange=document.getElementById('pitchRange');
+const volRange=document.getElementById('volRange');
+const rateVal=document.getElementById('rateVal');
+const pitchVal=document.getElementById('pitchVal');
+const volVal=document.getElementById('volVal');
+const speakBtn=document.getElementById('speakBtn');
+const pauseBtn=document.getElementById('pauseBtn');
+const stopBtn=document.getElementById('stopBtn');
+const charCount=document.getElementById('charCount');
+const statusDot=document.getElementById('statusDot');
+const statusTextEl=document.getElementById('statusText');
+const dbg=document.getElementById('debugLine');
+
+let speaking=false;
+let voices=[];
+let speechQueue=[];
+let queueIndex=0;
+let userStopped=false;
+
+function updateCharCount(){
+  charCount.textContent=textInput.value.length+' litterae';
+}
+textInput.addEventListener('input',updateCharCount);
+updateCharCount();
+
+/* Latin has no dedicated TTS voice; preference order:
+   la → la-* → it-IT → es-ES → pt-PT → all voices */
+function populateVoices(){
+  if(!ttsSupported) return;
+  const all=synth.getVoices();
+  const latin=all.filter(v=>v.lang.toLowerCase().startsWith('la'));
+  const italian=all.filter(v=>v.lang.toLowerCase().startsWith('it'));
+  const spanish=all.filter(v=>v.lang.toLowerCase().startsWith('es'));
+  const portuguese=all.filter(v=>v.lang.toLowerCase().startsWith('pt'));
+
+  // Build priority list
+  voices=[...latin,...italian,...spanish,...portuguese];
+  // Append remaining voices not already in list
+  const included=new Set(voices.map(v=>v.name));
+  all.forEach(v=>{ if(!included.has(v.name)) voices.push(v); });
+
+  voiceSelect.innerHTML='';
+  const groups=[
+    {label:'Latina', items:latin},
+    {label:'Italiana (recommended for Latin)', items:italian},
+    {label:'Española', items:spanish},
+    {label:'Portuguesa', items:portuguese},
+    {label:'Aliae Voces / Other Voices', items:all.filter(v=>!included.has(v.name)&&!latin.includes(v)&&!italian.includes(v)&&!spanish.includes(v)&&!portuguese.includes(v))}
+  ];
+
+  // flat list with optgroup labels
+  voices=[];
+  groups.forEach(g=>{
+    if(g.items.length===0) return;
+    const og=document.createElement('optgroup');
+    og.label=g.label;
+    g.items.forEach(v=>{
+      voices.push(v);
+      const opt=document.createElement('option');
+      opt.value=voices.length-1;
+      opt.textContent=`${v.name} (${v.lang})`;
+      og.appendChild(opt);
+    });
+    voiceSelect.appendChild(og);
+  });
+
+  if(dbg) dbg.textContent=`${voices.length} vox/voces detecta(e). Italica optima est pro Latinā.`;
+}
+
+if(!ttsSupported){
+  voiceSelect.innerHTML='<option>Non disponibilis in hoc navigatro</option>';
+  setStatus('non disponibilis');
+  speakBtn.disabled=true;
+  speakBtn.textContent='⚠ Synthēsis non disponibilis';
+} else {
+  populateVoices();
+  if(typeof speechSynthesis!=='undefined') speechSynthesis.onvoiceschanged=populateVoices;
+  let polls=0;
+  const poll=setInterval(()=>{
+    polls++;
+    if(voices.length>0||polls>20){ clearInterval(poll); if(voices.length===0) populateVoices(); }
+    else populateVoices();
+  },250);
+}
+
+rateRange.addEventListener('input',()=>rateVal.textContent=parseFloat(rateRange.value).toFixed(1)+'×');
+pitchRange.addEventListener('input',()=>pitchVal.textContent=parseFloat(pitchRange.value).toFixed(1));
+volRange.addEventListener('input',()=>volVal.textContent=Math.round(volRange.value*100)+'%');
+
+function setStatus(s){
+  statusDot.classList.toggle('live',s==='legit');
+  statusTextEl.textContent=s;
+}
+
+/* ── Chunking (Android/Chrome utterance length limit) ── */
+const MAX_CHUNK=180;
+function chunkText(text){
+  const sentences=text.match(/[^.!?,;\n]+[.!?,;\n]*|[^.!?,;\n]+$/g)||[text];
+  const chunks=[];
+  let current='';
+  sentences.forEach(s=>{
+    s=s.trim();
+    if(!s) return;
+    if((current+' '+s).trim().length<=MAX_CHUNK){
+      current=(current+' '+s).trim();
+    } else {
+      if(current) chunks.push(current);
+      if(s.length<=MAX_CHUNK){ current=s; }
+      else {
+        let words=s.split(' '), piece='';
+        words.forEach(w=>{
+          if((piece+' '+w).trim().length<=MAX_CHUNK){ piece=(piece+' '+w).trim(); }
+          else { chunks.push(piece); piece=w; }
+        });
+        current=piece;
+      }
+    }
+  });
+  if(current) chunks.push(current);
+  return chunks;
+}
+
+function speak(){
+  if(!ttsSupported) return;
+  const text=textInput.value.trim();
+  if(!text) return;
+  speechQueue=chunkText(text);
+  queueIndex=0;
+  userStopped=false;
+  if(dbg) dbg.textContent=`${speechQueue.length} particula(e) paratae ex ${text.length} litteris…`;
+  synth.cancel();
+  setTimeout(()=>speakNextChunk(),80);
+}
+
+function speakNextChunk(){
+  if(userStopped) return;
+  if(queueIndex>=speechQueue.length){
+    if(dbg) dbg.textContent='Fīnis. (Finished.)';
+    endPlayback(); return;
+  }
+  const chunk=speechQueue[queueIndex];
+  const utter=new SpeechSynthesisUtterance(chunk);
+  const v=voices[voiceSelect.value];
+  if(v) utter.voice=v;
+  utter.lang=(v&&v.lang)?v.lang:'it-IT'; // Italian as Latin fallback
+  utter.rate=parseFloat(rateRange.value);
+  utter.pitch=parseFloat(pitchRange.value);
+  utter.volume=parseFloat(volRange.value);
+
+  utter.onstart=()=>{
+    speaking=true;
+    setStatus('legit');
+    speakBtn.disabled=true;
+    pauseBtn.disabled=false;
+    stopBtn.disabled=false;
+    pauseBtn.textContent='Pausa';
+    if(!levelInterval) levelInterval=setInterval(()=>animateLevels(true),110);
+    if(dbg) dbg.textContent=`Legit particulam ${queueIndex+1} / ${speechQueue.length}…`;
+  };
+  utter.onend=()=>{ queueIndex++; speakNextChunk(); };
+  utter.onerror=(e)=>{
+    console.error('Speech error chunk',queueIndex,e.error);
+    if(e.error==='interrupted'||e.error==='canceled'){ endPlayback(); return; }
+    if(dbg) dbg.textContent=`Error in particula ${queueIndex+1}: ${e.error} — transeo…`;
+    queueIndex++;
+    setTimeout(()=>speakNextChunk(),150);
+  };
+  synth.speak(utter);
+}
+
+function endPlayback(){
+  speaking=false;
+  setStatus('quiēscit');
+  speakBtn.disabled=false;
+  pauseBtn.disabled=true;
+  stopBtn.disabled=true;
+  clearInterval(levelInterval);
+  levelInterval=null;
+  animateLevels(false);
+}
+
+speakBtn.addEventListener('click',speak);
+
+pauseBtn.addEventListener('click',()=>{
+  if(synth.speaking&&!synth.paused){
+    synth.pause();
+    pauseBtn.textContent='Perge';
+    setStatus('pausa');
+    clearInterval(levelInterval);
+    levelInterval=null;
+  } else if(synth.paused){
+    synth.resume();
+    pauseBtn.textContent='Pausa';
+    setStatus('legit');
+    if(!levelInterval) levelInterval=setInterval(()=>animateLevels(true),110);
+  }
+});
+
+stopBtn.addEventListener('click',()=>{
+  userStopped=true;
+  speechQueue=[];
+  queueIndex=0;
+  synth.cancel();
+  endPlayback();
+});
+
+document.getElementById('clearBtn').addEventListener('click',()=>{
+  textInput.value='';
+  updateCharCount();
+});
+
+document.querySelectorAll('.preset-chip[data-sample]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    textInput.value=btn.dataset.sample;
+    updateCharCount();
+  });
+});
+
+document.getElementById('downloadBtn').addEventListener('click',()=>{
+  alert('Recordatio audio systematis directo in navigatro non potest fieri sine permissionibus specialibus. Suggestio: utere instrumento recordationis systematis tui dum appremis LEGE.');
+});
+
+/* ── PDF upload & extraction ── */
+const pdfBtn=document.getElementById('pdfBtn');
+const pdfInput=document.getElementById('pdfInput');
+const pdfDrop=document.getElementById('pdfDrop');
+const pdfStatus=document.getElementById('pdfStatus');
+const pdfProgressWrap=document.getElementById('pdfProgressWrap');
+const pdfProgress=document.getElementById('pdfProgress');
+
+pdfBtn.addEventListener('click',()=>pdfInput.click());
+pdfInput.addEventListener('change',(e)=>{ if(e.target.files[0]) handlePdf(e.target.files[0]); });
+
+pdfDrop.addEventListener('dragover',(e)=>{ e.preventDefault(); pdfDrop.classList.add('drag-over'); });
+['dragleave','drop'].forEach(evt=>{
+  pdfDrop.addEventListener(evt,(e)=>{ e.preventDefault(); pdfDrop.classList.remove('drag-over'); });
+});
+pdfDrop.addEventListener('drop',(e)=>{
+  const file=e.dataTransfer.files[0];
+  if(file&&file.type==='application/pdf') handlePdf(file);
+  else if(file) setPdfStatus('Quaeso depone solum fasciculum .pdf','err');
+});
+
+function setPdfStatus(msg,cls){
+  pdfStatus.textContent=msg;
+  pdfStatus.className='pdf-status'+(cls?' '+cls:'');
+}
+
+async function handlePdf(file){
+  setPdfStatus(`Legit codicem "${file.name}"…`);
+  pdfProgressWrap.classList.remove('d-none');
+  pdfProgress.style.width='8%';
+
+  if(typeof pdfjsLib==='undefined'){
+    setPdfStatus('Machina PDF non potuit onerari. Refice paginam.','err');
+    pdfProgressWrap.classList.add('d-none');
+    return;
+  }
+
+  try{
+    const buffer=await file.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:buffer}).promise;
+    let fullText='';
+
+    for(let i=1;i<=pdf.numPages;i++){
+      const page=await pdf.getPage(i);
+      const content=await page.getTextContent();
+      fullText+=content.items.map(it=>it.str).join(' ').trim()+'\n\n';
+      pdfProgress.style.width=Math.round((i/pdf.numPages)*100)+'%';
+    }
+
+    fullText=fullText.replace(/[ \t]+/g,' ').replace(/\n{3,}/g,'\n\n').trim();
+
+    if(!fullText){
+      setPdfStatus('Nullus textus selectabilis in hoc codice inventus est (fortasse imago est).','err');
+    } else {
+      textInput.value=fullText;
+      updateCharCount();
+      setPdfStatus(`Codex "${file.name}" oneratus — ${pdf.numPages} pagina(e), ${fullText.length.toLocaleString()} litterae.`,'ok');
+    }
+  } catch(err){
+    console.error('PDF error:',err);
+    setPdfStatus('Hic codex legi non potuit: '+(err&&err.message?err.message:'error ignotus'),'err');
+  } finally {
+    setTimeout(()=>pdfProgressWrap.classList.add('d-none'),600);
+  }
+}
+
+drawWave(false);
+animateLevels(false);
+</script>
+</body>
+</html>
